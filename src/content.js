@@ -123,9 +123,9 @@ function addButtonsToHistoryEntries() {
             // Try to get duration, default to 0 if not found
             let seconds = 0;
             if (durationEl) {
-                seconds = parseDuration(durationEl.textContent) || parseDuration(durationEl.getAttribute('aria-label') || '') || 300; // Default 5 min if can't parse
+                seconds = parseDuration(durationEl.textContent) || parseDuration(durationEl.getAttribute('aria-label') || '') || 0;
             } else {
-                seconds = 300; // Default 5 minutes for videos without visible duration
+                seconds = 0; // No duration available
             }
 
             // Create wrapper to prevent flex stretching
@@ -259,7 +259,7 @@ function addButtonsToShorts() {
             btn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                logToDS(title, '', videoUrl, 30, btn);
+                logToDS(title, '', videoUrl, 0, btn);
             };
             
             el.appendChild(btn);

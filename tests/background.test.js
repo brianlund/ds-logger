@@ -81,10 +81,10 @@ describe('Background Script', () => {
       expect(duration).toBe(300);
     });
 
-    test('should use 300 second fallback when no duration info', () => {
+    test('should fail when no duration info available', () => {
       const videoData = {};
-      const duration = videoData.duration || 300;
-      expect(duration).toBe(300);
+      const duration = videoData.duration || videoData.timeSeconds || 0;
+      expect(duration).toBe(0);
     });
   });
 

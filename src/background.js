@@ -48,13 +48,19 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         // Calculate duration from hours, minutes, seconds fields
         const durationInSeconds = (videoData.hours || 0) * 3600 + (videoData.minutes || 0) * 60 + (videoData.seconds || 0);
         
+        // Get final duration, reject if no duration available
+        const finalDuration = durationInSeconds || videoData.duration || videoData.timeSeconds;
+        if (!finalDuration || finalDuration === 0) {
+          return sendResponse({ success: false, error: 'No video duration available' });
+        }
+        
         const payload = {
           id: Date.now().toString(),
           date: new Date().toISOString().split('T')[0],
           description: videoData.title ? `YouTube: ${videoData.title}` : 'YouTube video',
           url: msg.videoUrl,
           type: 'watching',
-          timeSeconds: durationInSeconds || videoData.duration || videoData.timeSeconds || 300, // fallback to 5 minutes
+          timeSeconds: finalDuration,
           idempotencyKey: crypto.randomUUID()
         };
         console.log('[DS Logger] Payload being sent:', payload);
