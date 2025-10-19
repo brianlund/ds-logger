@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "DreamingSpanish Logger",
+  "version": "1.2",
+  "description": "Log YouTube videos to your DreamingSpanish account for language learning progress tracking.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://app.dreaming.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
