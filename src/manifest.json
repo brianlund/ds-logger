@@ -1,5 +1,5 @@
 {
-  "manifest_version": 4,
+  "manifest_version": 3,
   "name": "Dreaming Logger",
   "version": "1.4.0",
   "description": "Log YouTube videos to your DreamingSpanish account for language learning progress tracking.",
