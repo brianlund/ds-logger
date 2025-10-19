@@ -9,7 +9,7 @@
     "test:watch": "vitest",
     "lint": "eslint src/**/*.js",
     "build": "npm run lint && npm run test",
-    "package": "cd src && zip -r ../dreamingspanish-logger.zip . -x '*.DS_Store*'"
+    "package": "cd src && zip -r ../dreamingspanish-logger.zip *.js *.json *.html -x '*.DS_Store*'"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
