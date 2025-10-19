@@ -108,20 +108,21 @@ function createButtonWrapper() {
     const wrapper = document.createElement('span');
     wrapper.style.cssText = `
         display: inline-block;
-        margin-left: 8px;
+        margin-left: 0px;
+        margin-top: 8px;
         flex: none;
     `;
     return wrapper;
 }
 
 function attachButton(element, button) {
-    const meta = element.querySelector('#metadata-line') ||
-        element.querySelector('.ytd-video-meta-block') ||
-        element.querySelector('#meta');
+    // Try to append the button wrapper
+    let meta = element.querySelector('.yt-lockup-metadata-view-model__text-container');
 
     if (meta) {
         meta.appendChild(button);
     } else {
+        // Default placement
         element.style.position = 'relative';
         button.style.position = 'absolute';
         button.style.top = '5px';
@@ -137,6 +138,9 @@ function processVideoElement(element) {
     const videoData = extractVideoData(elements);
 
     if (!videoData) return;
+
+    // Skip YouTube Shorts
+    if (videoData.videoUrl && videoData.videoUrl.includes('/shorts/')) return;
 
     const button = createLogButton();
     const wrapper = createButtonWrapper();
