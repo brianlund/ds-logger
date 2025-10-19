@@ -1,24 +1,30 @@
+// Vitest setup for Chrome extension testing
+import { vi } from 'vitest';
+
 // Mock Chrome APIs
 global.chrome = {
   runtime: {
     onMessage: {
-      addListener: jest.fn()
+      addListener: vi.fn()
     },
-    sendMessage: jest.fn(),
+    sendMessage: vi.fn(),
     lastError: null
   },
   storage: {
     local: {
-      get: jest.fn(),
-      set: jest.fn()
+      get: vi.fn(),
+      set: vi.fn()
     }
   }
 };
 
 // Mock fetch
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 // Mock crypto.randomUUID
-global.crypto = {
-  randomUUID: jest.fn(() => 'test-uuid-123')
-};
+Object.defineProperty(global, 'crypto', {
+  value: {
+    randomUUID: vi.fn(() => 'test-uuid-123')
+  },
+  writable: true
+});

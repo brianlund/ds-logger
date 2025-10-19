@@ -1,54 +1,64 @@
-// Mock DOM elements for testing
-
-// Helper function to test (copied from content.js)
-function parseDuration(text) {
-  if (!text) return 0;
-  const parts = text.trim().split(':').map(Number);
-  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-  if (parts.length === 2) return parts[0] * 60 + parts[1];
-  if (parts.length === 1) return parts[0];
-  return 0;
-}
-
-describe('Content Script Functions', () => {
-  describe('parseDuration', () => {
-    test('should parse MM:SS format', () => {
-      expect(parseDuration('5:30')).toBe(330); // 5*60 + 30
-      expect(parseDuration('10:15')).toBe(615); // 10*60 + 15
-    });
-
-    test('should parse H:MM:SS format', () => {
-      expect(parseDuration('1:30:45')).toBe(5445); // 1*3600 + 30*60 + 45
-    });
-
-    test('should handle edge cases', () => {
-      expect(parseDuration('')).toBe(0);
-      expect(parseDuration(null)).toBe(0);
-      expect(parseDuration(undefined)).toBe(0);
-      expect(parseDuration('60')).toBe(60);
+describe('Content Script Logic', () => {
+  describe('History Page Detection', () => {
+    test('should detect history page URL', () => {
+      const isHistoryPage = (url) => url.includes('/feed/history');
+      
+      expect(isHistoryPage('https://www.youtube.com/feed/history')).toBe(true);
+      expect(isHistoryPage('https://www.youtube.com/results?search_query=test')).toBe(false);
+      expect(isHistoryPage('https://www.youtube.com/')).toBe(false);
     });
   });
 
-  describe('Button Creation', () => {
-    test('should create button with correct properties', () => {
+  describe('Message Payload Creation', () => {
+    test('should create correct payload structure', () => {
+      const createPayload = (videoUrl, channel) => ({
+        type: 'inspectAndLogToDS',
+        videoUrl: videoUrl,
+        channel: channel
+      });
+      
+      const payload = createPayload('https://youtube.com/watch?v=abc123', 'Test Channel');
+      
+      expect(payload).toEqual({
+        type: 'inspectAndLogToDS',
+        videoUrl: 'https://youtube.com/watch?v=abc123',
+        channel: 'Test Channel'
+      });
+    });
+
+  });
+
+  describe('Button State Management', () => {
+    test('should create button with initial state', () => {
       const button = document.createElement('button');
       button.textContent = 'Log to DS';
       button.className = 'ds-log-btn';
+      button.disabled = false;
       
       expect(button.textContent).toBe('Log to DS');
       expect(button.className).toBe('ds-log-btn');
+      expect(button.disabled).toBe(false);
+    });
+
+    test('should update button to success state', () => {
+      const markButtonSuccess = (button) => {
+        button.textContent = 'Success';
+        button.disabled = true;
+      };
+      
+      const button = document.createElement('button');
+      markButtonSuccess(button);
+      
+      expect(button.textContent).toBe('Success');
+      expect(button.disabled).toBe(true);
+    });
+
+    test('should update button to error state', () => {
+      const button = document.createElement('button');
+      button.textContent = 'Error';
+      
+      expect(button.textContent).toBe('Error');
     });
   });
 
-  describe('Video URL Parsing', () => {
-    test('should handle regular YouTube URLs', () => {
-      const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
-      expect(url.includes('/watch?v=')).toBe(true);
-    });
-
-    test('should handle YouTube Shorts URLs', () => {
-      const url = 'https://www.youtube.com/shorts/dQw4w9WgXcQ';
-      expect(url.includes('/shorts/')).toBe(true);
-    });
-  });
 });

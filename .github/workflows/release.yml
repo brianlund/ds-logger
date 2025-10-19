@@ -1,0 +1,29 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+        
+    - name: Build and package
+      run: make package
+      
+    - name: Upload extension package
+      uses: actions/upload-artifact@v4
+      with:
+        name: dreamingspanish-logger-extension
+        path: dreamingspanish-logger.zip
+        retention-days: 30

@@ -1,123 +1,87 @@
-// Background script tests
-
-describe('Background Script', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    // Reset fetch mock
-    global.fetch.mockClear();
+describe('Background Script Logic', () => {
+  describe('Description Formatting', () => {
+    test('should format description with channel and title', () => {
+      const formatDescription = (title, channel) => {
+        let description = 'YouTube video';
+        if (title) {
+          if (channel) {
+            description = `YouTube - ${channel}: ${title}`;
+          } else {
+            description = `YouTube: ${title}`;
+          }
+        }
+        return description;
+      };
+      
+      expect(formatDescription('Test Video', 'Test Channel')).toBe('YouTube - Test Channel: Test Video');
+      expect(formatDescription('Test Video', null)).toBe('YouTube: Test Video');
+      expect(formatDescription(null, 'Test Channel')).toBe('YouTube video');
+    });
   });
 
-  describe('API Communication', () => {
-    test('should create correct payload structure', () => {
-      const videoData = {
-        title: 'Test Spanish Video',
-        hours: 0,
-        minutes: 5,
-        seconds: 30,
-        duration: 330
-      };
-
-      const videoUrl = 'https://www.youtube.com/watch?v=test123';
-      const expectedDuration = videoData.hours * 3600 + videoData.minutes * 60 + videoData.seconds;
-
-      const payload = {
+  describe('Payload Creation', () => {
+    test('should create correct DreamingSpanish payload structure', () => {
+      const createPayload = (title, channel, videoUrl, duration) => ({
         id: Date.now().toString(),
         date: new Date().toISOString().split('T')[0],
-        description: `YouTube: ${videoData.title}`,
+        description: channel ? `YouTube - ${channel}: ${title}` : `YouTube: ${title}`,
         url: videoUrl,
-        type: "watching",
-        timeSeconds: expectedDuration,
-        idempotencyKey: 'test-uuid-123'
-      };
-
-      expect(payload.description).toBe('YouTube: Test Spanish Video');
-      expect(payload.type).toBe('watching');
-      expect(payload.timeSeconds).toBe(330);
-      expect(payload.url).toBe(videoUrl);
-    });
-
-    test('should handle API inspection response', async () => {
-      const mockVideoData = {
-        title: 'Learn Spanish Video',
-        duration: 600,
-        hours: 0,
-        minutes: 10,
-        seconds: 0
-      };
-
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockVideoData
+        type: 'watching',
+        timeSeconds: duration,
+        idempotencyKey: 'test-uuid'
       });
-
-      const response = await fetch('https://app.dreaming.com/.netlify/functions/inspectExternalVideo?videoUrl=test');
-      const data = await response.json();
-
-      expect(data).toEqual(mockVideoData);
-      expect(fetch).toHaveBeenCalledWith('https://app.dreaming.com/.netlify/functions/inspectExternalVideo?videoUrl=test');
-    });
-
-    test('should handle API errors gracefully', async () => {
-      global.fetch.mockRejectedValueOnce(new Error('Network error'));
-
-      try {
-        await fetch('https://app.dreaming.com/.netlify/functions/inspectExternalVideo?videoUrl=test');
-      } catch (error) {
-        expect(error.message).toBe('Network error');
-      }
+      
+      const payload = createPayload('Test Video', 'Test Channel', 'https://youtube.com/watch?v=abc', 300);
+      
+      expect(payload.description).toBe('YouTube - Test Channel: Test Video');
+      expect(payload.type).toBe('watching');
+      expect(payload.timeSeconds).toBe(300);
+      expect(payload.url).toBe('https://youtube.com/watch?v=abc');
     });
   });
 
   describe('Duration Calculation', () => {
     test('should calculate duration from hours, minutes, seconds', () => {
+      const calculateDuration = (videoData) => {
+        return (videoData.hours || 0) * 3600 + (videoData.minutes || 0) * 60 + (videoData.seconds || 0);
+      };
+      
       const videoData = { hours: 1, minutes: 30, seconds: 45 };
-      const duration = videoData.hours * 3600 + videoData.minutes * 60 + videoData.seconds;
-      expect(duration).toBe(5445); // 1h 30m 45s = 5445 seconds
+      expect(calculateDuration(videoData)).toBe(5445); // 1h 30m 45s = 5445 seconds
     });
 
-    test('should fallback to duration field if HMS not available', () => {
-      const videoData = { duration: 300 };
-      const duration = videoData.duration;
-      expect(duration).toBe(300);
+    test('should handle missing time fields', () => {
+      const calculateDuration = (videoData) => {
+        return (videoData.hours || 0) * 3600 + (videoData.minutes || 0) * 60 + (videoData.seconds || 0);
+      };
+      
+      expect(calculateDuration({})).toBe(0);
+      expect(calculateDuration({ minutes: 5 })).toBe(300);
+      expect(calculateDuration({ hours: 1 })).toBe(3600);
     });
 
-    test('should fail when no duration info available', () => {
-      const videoData = {};
-      const duration = videoData.duration || videoData.timeSeconds || 0;
-      expect(duration).toBe(0);
+    test('should validate duration availability', () => {
+      const isValidDuration = (duration) => {
+        return !!(duration && duration > 0);
+      };
+      
+      expect(isValidDuration(0)).toBe(false);
+      expect(isValidDuration(null)).toBe(false);
+      expect(isValidDuration(undefined)).toBe(false);
+      expect(isValidDuration(300)).toBe(true);
     });
   });
 
-  describe('Token Storage', () => {
-    test('should handle token storage', () => {
-      const mockToken = 'test-bearer-token';
+  describe('Token Management', () => {
+    test('should validate token format', () => {
+      const isValidToken = (token) => {
+        return !!(token && typeof token === 'string' && token.length > 0);
+      };
       
-      chrome.storage.local.set.mockImplementation((data, callback) => {
-        expect(data).toEqual({ ds_token: mockToken });
-        if (callback) callback();
-      });
-
-      chrome.storage.local.set({ ds_token: mockToken }, () => {
-        // Token saved
-      });
-
-      expect(chrome.storage.local.set).toHaveBeenCalledWith(
-        { ds_token: mockToken },
-        expect.any(Function)
-      );
-    });
-
-    test('should handle token retrieval', () => {
-      const mockToken = 'test-bearer-token';
-      
-      chrome.storage.local.get.mockImplementation((key, callback) => {
-        expect(key).toBe('ds_token');
-        callback({ ds_token: mockToken });
-      });
-
-      chrome.storage.local.get('ds_token', (data) => {
-        expect(data.ds_token).toBe(mockToken);
-      });
+      expect(isValidToken('valid-token')).toBe(true);
+      expect(isValidToken('')).toBe(false);
+      expect(isValidToken(null)).toBe(false);
+      expect(isValidToken(undefined)).toBe(false);
     });
   });
 });

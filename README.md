@@ -1,65 +1,39 @@
 # DreamingSpanish Logger Extension
 
-A Chrome extension that adds "Log to DS" buttons to YouTube videos, allowing you to easily track your language learning progress on DreamingSpanish.com.
+A Chrome extension that adds "Log to DS" buttons to YouTube videos, allowing you to easily track your language learning progress on dreaming.com.
 
 ## Development
 
-### Setup
+### Available Commands
 ```bash
-npm install
+make install      # Install dependencies
+make test         # Run tests only
+make lint         # Run linting only  
+make validate     # Run tests and linting
+make package      # Build and create ZIP
+make clean        # Remove generated files
 ```
 
-### Testing
-```bash
-npm test          # Run all tests
-npm run test:watch # Run tests in watch mode
-```
+## What it does
 
-### Linting
-```bash
-npm run lint      # Check code quality
-```
-
-### Build & Package
-```bash
-npm run build     # Run tests and linting
-npm run package   # Create distribution ZIP
-```
-
-## Features
-
-- ✅ Adds "Log to DS" buttons to YouTube videos and shorts
-- ✅ Automatically detects video duration and metadata
-- ✅ Automatically logs videos with metadata
-- ✅ Works on YouTube search results, history, and recommendations
-- ✅ Clean, unobtrusive UI that matches YouTube's design
+- Adds "Log to DS" buttons to YouTube videos
+- Uses the DS inspectExternalVideo to extract video duration and metadata
 
 ## Installation
 
-1. Download or clone this repository
+1. Clone this repository
 2. Open Chrome and go to `chrome://extensions/`
 3. Enable "Developer mode" in the top right
-4. Click "Load unpacked" and select the extension folder
+4. Click "Load unpacked" and select the src folder
 
-## Setup
+## Configuration
 
-1. Click the extension icon in Chrome
-2. Get your Bearer token from DreamingSpanish.com (check network requests)
-3. Paste the token into the extension popup
-4. Click "Save Token"
+The extension will try and extract the bearer token for api.dreaming.com from local storage (you need to have a DreamingSpanish account and be logged in for the token to exist), but if it fails, you can click the extension icon and add it manually.
 
 ## Usage
 
-1. Browse YouTube for language learning content
-2. Look for "Log to DS" buttons next to video titles
-3. Click the button to automatically log the video to your DreamingSpanish account
-4. The button will show ✓ when successfully logged
-
-## Notes
-
-- Currently works with DreamingSpanish's existing API
-- Extension is language-agnostic and ready for future language additions
-
-## Version
-
-Current version: 1.2
+1. Get input on YouTube
+2. Go to the history page
+3. Click the button that says Log to DS
+4. Get more input
+   

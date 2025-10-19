@@ -1,10 +1,12 @@
 {
   "manifest_version": 3,
   "name": "DreamingSpanish Logger",
-  "version": "1.2",
+  "version": "1.3",
   "description": "Log YouTube videos to your DreamingSpanish account for language learning progress tracking.",
   "permissions": [
-    "storage"
+    "storage",
+    "tabs",
+    "scripting"
   ],
   "host_permissions": [
     "https://www.youtube.com/*",
@@ -20,6 +22,14 @@
       ],
       "js": [
         "content.js"
+      ]
+    },
+    {
+      "matches": [
+        "https://app.dreaming.com/*"
+      ],
+      "js": [
+        "dreaming-spanish-token.js"
       ]
     }
   ],

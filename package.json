@@ -1,24 +1,21 @@
 {
   "name": "dreamingspanish-logger",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Chrome extension for logging YouTube videos to DreamingSpanish",
+  "type": "module",
   "private": true,
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint src/**/*.js",
     "build": "npm run lint && npm run test",
     "package": "zip -r dreamingspanish-logger.zip src/ -x '*.DS_Store*'"
   },
   "devDependencies": {
-    "@jest/globals": "^29.7.0",
-    "eslint": "^8.57.0",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0"
-  },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"]
+    "@eslint/js": "^9.38.0",
+    "eslint": "^9.38.0",
+    "jsdom": "^27.0.1",
+    "vitest": "^3.2.4"
   },
   "author": "Brian Lund Larsen",
   "license": "MIT"
