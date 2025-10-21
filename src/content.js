@@ -39,6 +39,13 @@ function isHistoryPage() {
     return window.location.href.includes('/feed/history');
 }
 
+function removeAllButtons() {
+    document.querySelectorAll('.ds-log-btn').forEach(btn => {
+        btn.closest('span')?.remove() || btn.remove();
+    });
+}
+
+
 function findVideoElements(element) {
     const titleEl = element.querySelector('#video-title') ||
         element.querySelector('h3 a') ||
@@ -173,11 +180,25 @@ function addButtonsToVideos() {
 }
 
 // Initial run when page loads
-addButtonsToVideos();
+if (isHistoryPage()) {
+    setTimeout(() => {
+        addButtonsToVideos();
+    }, 1000);
+}
 
 // Watch for dynamically loaded content
 const observer = new MutationObserver(() => {
-    addButtonsToVideos();
+    if (isHistoryPage()) {
+        // Only add buttons if we're on history page
+        setTimeout(() => {
+            if (isHistoryPage()) {
+                addButtonsToVideos();
+            }
+        }, 1000);
+    } else {
+        // Always remove buttons if we're not on history page
+        removeAllButtons();
+    }
 });
 
 observer.observe(document.body, {
