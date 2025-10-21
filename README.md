@@ -21,6 +21,10 @@ make clean        # Remove generated files
 
 ## Installation
 
+Install the extension from the [Chrome Web Store HERE](https://chromewebstore.google.com/detail/dreaming-logger/nkbiabkpjehnckfpjpidljhhdlcdnmjm) 
+
+To install from source:
+
 1. Clone this repository
 2. Open Chrome and go to `chrome://extensions/`
 3. Enable "Developer mode" in the top right
