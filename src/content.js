@@ -185,7 +185,7 @@ function addButtonsToVideos() {
 if (isHistoryPage()) {
     setTimeout(() => {
         addButtonsToVideos();
-    }, 1000);
+    }, 500);
 }
 
 // Watch for dynamically loaded content
@@ -201,7 +201,7 @@ const observer = new MutationObserver(() => {
             if (isHistoryPage()) {
                 addButtonsToVideos();
             }
-        }, 1000);
+        }, 500);
     } else {
         // Clear any pending timeout when leaving history page
         if (addButtonsTimeout) {
