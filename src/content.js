@@ -39,6 +39,15 @@ function isHistoryPage() {
     return window.location.href.includes('/feed/history');
 }
 
+function removeAllButtons() {
+    document.querySelectorAll('.ds-log-btn').forEach(btn => {
+        btn.closest('span')?.remove() || btn.remove();
+    });
+}
+
+// Debounce timeout for adding buttons
+let addButtonsTimeout = null;
+
 function findVideoElements(element) {
     const titleEl = element.querySelector('#video-title') ||
         element.querySelector('h3 a') ||
@@ -173,11 +182,36 @@ function addButtonsToVideos() {
 }
 
 // Initial run when page loads
-addButtonsToVideos();
+if (isHistoryPage()) {
+    setTimeout(() => {
+        addButtonsToVideos();
+    }, 500);
+}
 
 // Watch for dynamically loaded content
 const observer = new MutationObserver(() => {
-    addButtonsToVideos();
+    if (isHistoryPage()) {
+        // Clear any pending timeout to prevent excessive calls
+        if (addButtonsTimeout) {
+            clearTimeout(addButtonsTimeout);
+        }
+        
+        // Only add buttons if we're on history page
+        addButtonsTimeout = setTimeout(() => {
+            if (isHistoryPage()) {
+                addButtonsToVideos();
+            }
+        }, 500);
+    } else {
+        // Clear any pending timeout when leaving history page
+        if (addButtonsTimeout) {
+            clearTimeout(addButtonsTimeout);
+            addButtonsTimeout = null;
+        }
+        
+        // Always remove buttons if we're not on history page
+        removeAllButtons();
+    }
 });
 
 observer.observe(document.body, {
