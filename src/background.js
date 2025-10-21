@@ -62,9 +62,10 @@ function createPayload(videoData, videoUrl, channel) {
 }
 
 async function logVideo(payload, token) {
-  const response = await fetch('https://app.dreaming.com/.netlify/functions/externalTime', {
+  const response = await fetch('https://app.dreaming.com/.netlify/functions/externalTime?language=es', {
     method: 'POST',
     headers: {
+      'accept': '*/*',
       'authorization': 'Bearer ' + token,
       'content-type': 'text/plain;charset=UTF-8'
     },
