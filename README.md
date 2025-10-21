@@ -21,7 +21,7 @@ make clean        # Remove generated files
 
 ## Installation
 
-Install the extension from the [Chrome Web Store HERE](https://chromewebstore.google.com/detail/dreaming-logger/nkbiabkpjehnckfpjpidljhhdlcdnmjm)
+Install the extension from the [Chrome Web Store](https://chromewebstore.google.com/detail/dreaming-logger/nkbiabkpjehnckfpjpidljhhdlcdnmjm)
 
 To install from source:
 
