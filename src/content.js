@@ -45,6 +45,8 @@ function removeAllButtons() {
     });
 }
 
+// Debounce timeout for adding buttons
+let addButtonsTimeout = null;
 
 function findVideoElements(element) {
     const titleEl = element.querySelector('#video-title') ||
@@ -189,13 +191,24 @@ if (isHistoryPage()) {
 // Watch for dynamically loaded content
 const observer = new MutationObserver(() => {
     if (isHistoryPage()) {
+        // Clear any pending timeout to prevent excessive calls
+        if (addButtonsTimeout) {
+            clearTimeout(addButtonsTimeout);
+        }
+        
         // Only add buttons if we're on history page
-        setTimeout(() => {
+        addButtonsTimeout = setTimeout(() => {
             if (isHistoryPage()) {
                 addButtonsToVideos();
             }
         }, 1000);
     } else {
+        // Clear any pending timeout when leaving history page
+        if (addButtonsTimeout) {
+            clearTimeout(addButtonsTimeout);
+            addButtonsTimeout = null;
+        }
+        
         // Always remove buttons if we're not on history page
         removeAllButtons();
     }
