@@ -168,16 +168,21 @@ function processVideoElement(element) {
 function addButtonsToVideos() {
     if (!isHistoryPage()) return;
 
-    const selectors = [
-        'ytd-video-renderer',
-        'ytd-rich-item-renderer',
-        'ytd-video-meta-block',
-        'ytd-compact-video-renderer',
-        'yt-lockup-view-model'
-    ];
+    // Check if token exists before adding buttons
+    chrome.storage.local.get('ds_token', (data) => {
+        if (!data.ds_token) return; // No token, don't show buttons
 
-    selectors.forEach(selector => {
-        document.querySelectorAll(selector).forEach(processVideoElement);
+        const selectors = [
+            'ytd-video-renderer',
+            'ytd-rich-item-renderer',
+            'ytd-video-meta-block',
+            'ytd-compact-video-renderer',
+            'yt-lockup-view-model'
+        ];
+
+        selectors.forEach(selector => {
+            document.querySelectorAll(selector).forEach(processVideoElement);
+        });
     });
 }
 
