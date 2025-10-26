@@ -79,39 +79,6 @@ async function logVideo(payload, token) {
   return response;
 }
 
-async function triggerUIRefresh(token) {
-  const today = new Date().toISOString().split('T')[0];
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  
-  // Make the same GET requests that the DreamingSpanish dialog makes
-  await Promise.all([
-    fetch(`https://app.dreaming.com/.netlify/functions/user?timezone=1`, {
-      headers: { 'authorization': 'Bearer ' + token }
-    }),
-    fetch(`https://app.dreaming.com/.netlify/functions/externalTime?language=es`, {
-      headers: { 'authorization': 'Bearer ' + token }
-    }),
-    fetch(`https://app.dreaming.com/.netlify/functions/dayWatchedTime?date=${today}&language=es`, {
-      headers: { 'authorization': 'Bearer ' + token }
-    }),
-    fetch(`https://app.dreaming.com/.netlify/functions/notifications`, {
-      headers: { 'authorization': 'Bearer ' + token }
-    })
-  ]);
-}
-
-async function triggerDreamingSpanishRefresh() {
-  const tabs = await chrome.tabs.query({ url: 'https://app.dreaming.com/*' });
-  tabs.forEach(tab => {
-    chrome.tabs.sendMessage(tab.id, {
-      type: 'refreshWatchedTime'
-    }).catch(() => {
-      // If message fails, content script might not be injected yet
-      console.log('Could not send refresh message to tab', tab.id);
-    });
-  });
-}
-
 async function handleVideoInspectAndLog(msg, sendResponse) {
   chrome.storage.local.get('ds_token', async data => {
     const token = data.ds_token;

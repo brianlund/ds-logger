@@ -67,7 +67,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                 }, 3000);
                 
                 sendResponse({ success: true });
-            }
+            } else {
                 sendResponse({ success: false, error: 'API call failed' });
             }
         }).catch(error => {
