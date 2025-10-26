@@ -111,7 +111,7 @@ async function handleVideoInspectAndLog(msg, sendResponse) {
             // Fallback: log from background if page context fails
             await logVideoFallback(payload, token, videoData, sendResponse);
           }
-        } catch (error) {
+        } catch {
           // Fallback: log from background if page context fails
           await logVideoFallback(payload, token, videoData, sendResponse);
         }
