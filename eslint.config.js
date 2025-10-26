@@ -19,6 +19,7 @@ export default [
         fetch: 'readonly',
         crypto: 'readonly',
         localStorage: 'readonly',
+        indexedDB: 'readonly',
         MutationObserver: 'readonly'
       }
     },

@@ -79,6 +79,11 @@ async function logVideo(payload, token) {
   return response;
 }
 
+async function logVideoFallback(payload, token, videoData, sendResponse) {
+  await logVideo(payload, token);
+  sendResponse({ success: true, videoData, payload });
+}
+
 async function handleVideoInspectAndLog(msg, sendResponse) {
   chrome.storage.local.get('ds_token', async data => {
     const token = data.ds_token;
@@ -89,9 +94,31 @@ async function handleVideoInspectAndLog(msg, sendResponse) {
     try {
       const videoData = await inspectVideo(msg.videoUrl, token);
       const payload = createPayload(videoData, msg.videoUrl, msg.channel);
-      await logVideo(payload, token);
       
-      sendResponse({ success: true, videoData, payload });
+      // Instead of logging from background, send payload to DreamingSpanish page to log from their context
+      const tabs = await chrome.tabs.query({ url: 'https://app.dreaming.com/*' });
+      if (tabs.length > 0) {
+        // Send to first DS tab to make the API call from page context
+        try {
+          const response = await chrome.tabs.sendMessage(tabs[0].id, {
+            type: 'logTimeFromPage',
+            payload: payload
+          });
+          
+          if (response?.success) {
+            sendResponse({ success: true, videoData, payload });
+          } else {
+            // Fallback: log from background if page context fails
+            await logVideoFallback(payload, token, videoData, sendResponse);
+          }
+        } catch (error) {
+          // Fallback: log from background if page context fails
+          await logVideoFallback(payload, token, videoData, sendResponse);
+        }
+      } else {
+        // No DS tab open, log from background
+        await logVideoFallback(payload, token, videoData, sendResponse);
+      }
     } catch (error) {
       sendResponse({ success: false, error: error.message });
     }

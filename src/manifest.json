@@ -33,7 +33,19 @@
       ]
     }
   ],
+  "icons": {
+    "16": "ds-logger.png",
+    "32": "ds-logger.png",
+    "48": "ds-logger.png",
+    "128": "ds-logger.png"
+  },
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "ds-logger.png",
+      "32": "ds-logger.png",
+      "48": "ds-logger.png",
+      "128": "ds-logger.png"
+    }
   }
 }
