@@ -94,21 +94,24 @@ async function handleVideoInspectAndLog(msg, sendResponse) {
       const tabs = await chrome.tabs.query({ url: 'https://app.dreaming.com/*' });
       if (tabs.length > 0) {
         // Send to first DS tab to make the API call from page context
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: 'logTimeFromPage',
-          payload: payload
-        }, (response) => {
+        try {
+          const response = await chrome.tabs.sendMessage(tabs[0].id, {
+            type: 'logTimeFromPage',
+            payload: payload
+          });
+          
           if (response?.success) {
             sendResponse({ success: true, videoData, payload });
           } else {
             // Fallback: log from background if page context fails
-            logVideo(payload, token).then(() => {
-              sendResponse({ success: true, videoData, payload });
-            }).catch(error => {
-              sendResponse({ success: false, error: error.message });
-            });
+            await logVideo(payload, token);
+            sendResponse({ success: true, videoData, payload });
           }
-        });
+        } catch (error) {
+          // Fallback: log from background if page context fails
+          await logVideo(payload, token);
+          sendResponse({ success: true, videoData, payload });
+        }
       } else {
         // No DS tab open, log from background
         await logVideo(payload, token);

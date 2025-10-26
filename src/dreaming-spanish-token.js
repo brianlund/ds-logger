@@ -60,10 +60,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                 reloadTimeout = setTimeout(() => {
                     // Delete IndexedDB cache and reload
                     // This is the most reliable way to refresh the UI from an extension
-                    indexedDB.deleteDatabase('react_query_offline_db');
-                    setTimeout(() => {
+                    const deleteRequest = indexedDB.deleteDatabase('react_query_offline_db');
+                    deleteRequest.onsuccess = () => {
                         window.location.reload();
-                    }, 300);
+                    };
+                    deleteRequest.onerror = () => {
+                        // Reload anyway if deletion fails
+                        window.location.reload();
+                    };
                 }, 3000);
                 
                 sendResponse({ success: true });
