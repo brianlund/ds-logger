@@ -58,8 +58,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                 // Set a new timeout to reload after 3 seconds of inactivity
                 // This allows users to log multiple videos before the page refreshes
                 reloadTimeout = setTimeout(() => {
-                    localStorage.removeItem('dailyGoalCompletionByLanguage');
-                    
                     // Delete IndexedDB cache and reload
                     // This is the most reliable way to refresh the UI from an extension
                     indexedDB.deleteDatabase('react_query_offline_db');
