@@ -79,6 +79,11 @@ async function logVideo(payload, token) {
   return response;
 }
 
+async function logVideoFallback(payload, token, videoData, sendResponse) {
+  await logVideo(payload, token);
+  sendResponse({ success: true, videoData, payload });
+}
+
 async function handleVideoInspectAndLog(msg, sendResponse) {
   chrome.storage.local.get('ds_token', async data => {
     const token = data.ds_token;
@@ -104,18 +109,15 @@ async function handleVideoInspectAndLog(msg, sendResponse) {
             sendResponse({ success: true, videoData, payload });
           } else {
             // Fallback: log from background if page context fails
-            await logVideo(payload, token);
-            sendResponse({ success: true, videoData, payload });
+            await logVideoFallback(payload, token, videoData, sendResponse);
           }
         } catch (error) {
           // Fallback: log from background if page context fails
-          await logVideo(payload, token);
-          sendResponse({ success: true, videoData, payload });
+          await logVideoFallback(payload, token, videoData, sendResponse);
         }
       } else {
         // No DS tab open, log from background
-        await logVideo(payload, token);
-        sendResponse({ success: true, videoData, payload });
+        await logVideoFallback(payload, token, videoData, sendResponse);
       }
     } catch (error) {
       sendResponse({ success: false, error: error.message });
