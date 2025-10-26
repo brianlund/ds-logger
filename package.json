@@ -1,6 +1,6 @@
 {
   "name": "dreamingspanish-logger",
-  "version": "1.3.0",
+  "version": "1.4.2",
   "description": "Chrome extension for logging YouTube videos to DreamingSpanish",
   "type": "module",
   "private": true,
