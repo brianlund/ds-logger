@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Dreaming Logger",
-  "version": "1.4.2",
-  "description": "Log YouTube videos to your DreamingSpanish account for language learning progress tracking.",
+  "version": "1.5.0",
+  "description": "Log YouTube videos to your Dreaming (Spanish or French) account for language learning progress tracking.",
   "permissions": [
     "storage",
     "tabs",

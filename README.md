@@ -1,6 +1,7 @@
-# DreamingSpanish Logger Extension
+# Dreaming Spanish/French Logger Extension
 
-A Chrome extension that adds "Log to DS" buttons to YouTube videos, allowing you to easily track your language learning progress on dreaming.com.
+A Chrome extension that adds "Log to DS" or "Log to DF" buttons to YouTube videos, allowing you to easily track your language learning progress on dreaming.com.
+You can select either Spanish or French in the options, the default is Spanish.
 
 ## Development
 
@@ -16,8 +17,8 @@ make clean        # Remove generated files
 
 ## What it does
 
-- Adds "Log to DS" buttons to YouTube videos
-- Uses the DS inspectExternalVideo to extract video duration and metadata
+- Adds "Log to DS/DF" buttons to YouTube videos
+- Uses the Dreaming.com inspectExternalVideo to extract video duration and metadata
 
 ## Installation
 
@@ -32,12 +33,12 @@ To install from source:
 
 ## Configuration
 
-The extension will try and extract the bearer token for api.dreaming.com from local storage (you need to have a DreamingSpanish account and be logged in for the token to exist), but if it fails, you can click the extension icon and add it manually.
+The extension will try and extract the bearer token for api.dreaming.com from local storage (you need to have an account on dreaming.com account and be logged in for the token to exist), but if it fails, you can click the extension icon and add it manually. The easiest is if you install the extension, then go to dreaming.com and login or refresh the page. 
 
 ## Usage
 
 1. Get input on YouTube
 2. Go to the history page
-3. Click the button that says Log to DS
+3. Click the button that says Log to DS / DF
 4. Get more input
    

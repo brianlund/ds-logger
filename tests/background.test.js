@@ -84,4 +84,46 @@ describe('Background Script Logic', () => {
       expect(isValidToken(undefined)).toBe(false);
     });
   });
+
+  describe('Language Support', () => {
+    test('should validate language code', () => {
+      const isValidLanguage = (language) => {
+        return language === 'es' || language === 'fr';
+      };
+      
+      expect(isValidLanguage('es')).toBe(true);
+      expect(isValidLanguage('fr')).toBe(true);
+      expect(isValidLanguage('de')).toBe(false);
+      expect(isValidLanguage('')).toBe(false);
+      expect(isValidLanguage(null)).toBe(false);
+    });
+
+    test('should build correct API URL for Spanish', () => {
+      const buildApiUrl = (language) => {
+        return `https://app.dreaming.com/.netlify/functions/externalTime?language=${language}`;
+      };
+      
+      expect(buildApiUrl('es')).toBe('https://app.dreaming.com/.netlify/functions/externalTime?language=es');
+    });
+
+    test('should build correct API URL for French', () => {
+      const buildApiUrl = (language) => {
+        return `https://app.dreaming.com/.netlify/functions/externalTime?language=${language}`;
+      };
+      
+      expect(buildApiUrl('fr')).toBe('https://app.dreaming.com/.netlify/functions/externalTime?language=fr');
+    });
+
+    test('should default to Spanish when language is not set', () => {
+      const getLanguage = (storedLanguage) => {
+        return storedLanguage || 'es';
+      };
+      
+      expect(getLanguage('fr')).toBe('fr');
+      expect(getLanguage('es')).toBe('es');
+      expect(getLanguage(null)).toBe('es');
+      expect(getLanguage(undefined)).toBe('es');
+      expect(getLanguage('')).toBe('es');
+    });
+  });
 });

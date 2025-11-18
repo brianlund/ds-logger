@@ -29,13 +29,32 @@ describe('Content Script Logic', () => {
   });
 
   describe('Button State Management', () => {
-    test('should create button with initial state', () => {
-      const button = document.createElement('button');
-      button.textContent = 'Log to DS';
-      button.className = 'ds-log-btn';
-      button.disabled = false;
+    test('should create button with Spanish text', () => {
+      const createButton = (language) => {
+        const button = document.createElement('button');
+        button.textContent = language === 'fr' ? 'Log to DF' : 'Log to DS';
+        button.className = 'ds-log-btn';
+        button.disabled = false;
+        return button;
+      };
       
+      const button = createButton('es');
       expect(button.textContent).toBe('Log to DS');
+      expect(button.className).toBe('ds-log-btn');
+      expect(button.disabled).toBe(false);
+    });
+
+    test('should create button with French text', () => {
+      const createButton = (language) => {
+        const button = document.createElement('button');
+        button.textContent = language === 'fr' ? 'Log to DF' : 'Log to DS';
+        button.className = 'ds-log-btn';
+        button.disabled = false;
+        return button;
+      };
+      
+      const button = createButton('fr');
+      expect(button.textContent).toBe('Log to DF');
       expect(button.className).toBe('ds-log-btn');
       expect(button.disabled).toBe(false);
     });

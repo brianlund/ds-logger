@@ -72,9 +72,9 @@ function extractVideoData(elements) {
     };
 }
 
-function createLogButton() {
+function createLogButton(language) {
     const btn = document.createElement('button');
-    btn.textContent = 'Log to DS';
+    btn.textContent = language === 'fr' ? 'Log to DF' : 'Log to DS';
     btn.className = 'ds-log-btn';
     btn.style.cssText = `
         padding: 3px 8px !important;
@@ -140,7 +140,7 @@ function attachButton(element, button) {
     }
 }
 
-function processVideoElement(element) {
+function processVideoElement(element, language) {
     if (element.querySelector('.ds-log-btn')) return;
 
     const elements = findVideoElements(element);
@@ -151,7 +151,7 @@ function processVideoElement(element) {
     // Skip YouTube Shorts
     if (videoData.videoUrl && videoData.videoUrl.includes('/shorts/')) return;
 
-    const button = createLogButton();
+    const button = createLogButton(language);
     const wrapper = createButtonWrapper();
 
     wrapper.appendChild(button);
@@ -169,8 +169,10 @@ function addButtonsToVideos() {
     if (!isHistoryPage()) return;
 
     // Check if token exists before adding buttons
-    chrome.storage.local.get('ds_token', (data) => {
+    chrome.storage.local.get(['ds_token', 'ds_language'], (data) => {
         if (!data.ds_token) return; // No token, don't show buttons
+
+        const language = data.ds_language || 'es';
 
         const selectors = [
             'ytd-video-renderer',
@@ -181,7 +183,7 @@ function addButtonsToVideos() {
         ];
 
         selectors.forEach(selector => {
-            document.querySelectorAll(selector).forEach(processVideoElement);
+            document.querySelectorAll(selector).forEach(el => processVideoElement(el, language));
         });
     });
 }
