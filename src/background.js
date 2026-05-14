@@ -43,21 +43,39 @@ function buildDescription(title, channel) {
   }
 }
 
-function createPayload(videoData, videoUrl, channel) {
+function isValidPayloadDate(date) {
+  if (typeof date !== 'string') return false;
+
+  const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return false;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const parsedDate = new Date(`${date}T00:00:00Z`);
+
+  return parsedDate.getUTCFullYear() === year &&
+    parsedDate.getUTCMonth() === month - 1 &&
+    parsedDate.getUTCDate() === day;
+}
+
+function createPayload(videoData, videoUrl, channel, viewedDate) {
   const finalDuration = calculateDuration(videoData);
   
   if (!finalDuration || finalDuration === 0) {
     throw new Error('No video duration available');
   }
   
+  const logDate = isValidPayloadDate(viewedDate) ? viewedDate : new Date().toISOString().split('T')[0];
   return {
     id: Date.now().toString(),
-    date: new Date().toISOString().split('T')[0],
-    description: buildDescription(videoData.title, channel),
-    url: videoUrl,
-    type: 'watching',
     timeSeconds: finalDuration,
-    idempotencyKey: crypto.randomUUID()
+    description: buildDescription(videoData.title, channel),
+    type: 'watching',
+    date: logDate,
+    today: logDate,
+    idempotencyKey: crypto.randomUUID(),
+    externalVideoUrl: videoUrl
   };
 }
 
@@ -95,7 +113,7 @@ async function handleVideoInspectAndLog(msg, sendResponse) {
 
     try {
       const videoData = await inspectVideo(msg.videoUrl, token);
-      const payload = createPayload(videoData, msg.videoUrl, msg.channel);
+      const payload = createPayload(videoData, msg.videoUrl, msg.channel, msg.viewedDate);
       
       // Instead of logging from background, send payload to DreamingSpanish page to log from their context
       const tabs = await chrome.tabs.query({ url: 'https://app.dreaming.com/*' });

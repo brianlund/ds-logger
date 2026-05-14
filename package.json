@@ -1,6 +1,6 @@
 {
   "name": "dreamingspanish-logger",
-  "version": "1.4.2",
+  "version": "1.5.2",
   "description": "Chrome extension for logging YouTube videos to DreamingSpanish",
   "type": "module",
   "private": true,
@@ -9,7 +9,7 @@
     "test:watch": "vitest",
     "lint": "eslint src/**/*.js",
     "build": "npm run lint && npm run test",
-    "package": "cd src && zip -r ../dreamingspanish-logger.zip *.js *.json *.html -x '*.DS_Store*'"
+    "package": "cd src && zip -r ../dreamingspanish-logger.zip *.js *.json *.html *.png -x '*.DS_Store*'"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",

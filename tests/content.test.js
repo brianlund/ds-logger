@@ -11,21 +11,56 @@ describe('Content Script Logic', () => {
 
   describe('Message Payload Creation', () => {
     test('should create correct payload structure', () => {
-      const createPayload = (videoUrl, channel) => ({
+      const createPayload = (videoUrl, channel, viewedDate) => ({
         type: 'inspectAndLogToDS',
         videoUrl: videoUrl,
-        channel: channel
+        channel: channel,
+        viewedDate: viewedDate
       });
       
-      const payload = createPayload('https://youtube.com/watch?v=abc123', 'Test Channel');
+      const payload = createPayload('https://youtube.com/watch?v=abc123', 'Test Channel', '2026-05-12');
       
       expect(payload).toEqual({
         type: 'inspectAndLogToDS',
         videoUrl: 'https://youtube.com/watch?v=abc123',
-        channel: 'Test Channel'
+        channel: 'Test Channel',
+        viewedDate: '2026-05-12'
       });
     });
 
+  });
+
+  describe('YouTube History Date Parsing', () => {
+    const formatLocalDate = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const parseHistoryDateText = (text, referenceDate = new Date()) => {
+      const cleanedText = text.replace(/\s+/g, ' ').trim();
+      const startOfToday = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
+
+      if (/\btoday\b/i.test(cleanedText)) {
+        return formatLocalDate(startOfToday);
+      }
+
+      if (/\byesterday\b/i.test(cleanedText)) {
+        const yesterday = new Date(startOfToday);
+        yesterday.setDate(yesterday.getDate() - 1);
+        return formatLocalDate(yesterday);
+      }
+
+      return null;
+    };
+
+    test('should resolve Today and Yesterday headers', () => {
+      const referenceDate = new Date(2026, 4, 13);
+
+      expect(parseHistoryDateText('Today', referenceDate)).toBe('2026-05-13');
+      expect(parseHistoryDateText('Yesterday', referenceDate)).toBe('2026-05-12');
+    });
   });
 
   describe('Button State Management', () => {

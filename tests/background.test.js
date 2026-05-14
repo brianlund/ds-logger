@@ -20,23 +20,49 @@ describe('Background Script Logic', () => {
   });
 
   describe('Payload Creation', () => {
-    test('should create correct DreamingSpanish payload structure', () => {
-      const createPayload = (title, channel, videoUrl, duration) => ({
+    test('should create correct DreamingSpanish payload structure with viewed date', () => {
+      const createPayload = (title, channel, videoUrl, duration, viewedDate) => ({
         id: Date.now().toString(),
-        date: new Date().toISOString().split('T')[0],
-        description: channel ? `YouTube - ${channel}: ${title}` : `YouTube: ${title}`,
-        url: videoUrl,
-        type: 'watching',
         timeSeconds: duration,
-        idempotencyKey: 'test-uuid'
+        description: channel ? `YouTube - ${channel}: ${title}` : `YouTube: ${title}`,
+        type: 'watching',
+        date: viewedDate,
+        today: viewedDate,
+        idempotencyKey: 'test-uuid',
+        externalVideoUrl: videoUrl
       });
       
-      const payload = createPayload('Test Video', 'Test Channel', 'https://youtube.com/watch?v=abc', 300);
+      const payload = createPayload('Test Video', 'Test Channel', 'https://youtube.com/watch?v=abc', 300, '2026-05-12');
       
       expect(payload.description).toBe('YouTube - Test Channel: Test Video');
       expect(payload.type).toBe('watching');
       expect(payload.timeSeconds).toBe(300);
-      expect(payload.url).toBe('https://youtube.com/watch?v=abc');
+      expect(payload.externalVideoUrl).toBe('https://youtube.com/watch?v=abc');
+      expect(payload.date).toBe('2026-05-12');
+      expect(payload.today).toBe('2026-05-12');
+    });
+
+    test('should fall back to current date when viewed date is missing', () => {
+      const today = new Date().toISOString().split('T')[0];
+      const createPayload = (title, channel, videoUrl, duration, viewedDate) => {
+        const logDate = viewedDate || today;
+
+        return {
+          id: Date.now().toString(),
+          timeSeconds: duration,
+          description: channel ? `YouTube - ${channel}: ${title}` : `YouTube: ${title}`,
+          type: 'watching',
+          date: logDate,
+          today: logDate,
+          idempotencyKey: 'test-uuid',
+          externalVideoUrl: videoUrl
+        };
+      };
+
+      const payload = createPayload('Test Video', 'Test Channel', 'https://youtube.com/watch?v=abc', 300);
+
+      expect(payload.date).toBe(today);
+      expect(payload.today).toBe(today);
     });
   });
 
