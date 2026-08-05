@@ -40,7 +40,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.type === 'logTimeFromPage') {
         // Make the API call from the page context so their UI detects it
         const token = localStorage.getItem('token');
-        fetch('https://app.dreaming.com/.netlify/functions/externalTime?language=es', {
+        const language = msg.language || 'es';
+        fetch(`https://app.dreaming.com/.netlify/functions/externalTime?language=${language}`, {
             method: 'POST',
             headers: {
                 'accept': '*/*',

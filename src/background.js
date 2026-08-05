@@ -43,26 +43,44 @@ function buildDescription(title, channel) {
   }
 }
 
-function createPayload(videoData, videoUrl, channel) {
+function isValidPayloadDate(date) {
+  if (typeof date !== 'string') return false;
+
+  const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return false;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const parsedDate = new Date(`${date}T00:00:00Z`);
+
+  return parsedDate.getUTCFullYear() === year &&
+    parsedDate.getUTCMonth() === month - 1 &&
+    parsedDate.getUTCDate() === day;
+}
+
+function createPayload(videoData, videoUrl, channel, viewedDate) {
   const finalDuration = calculateDuration(videoData);
   
   if (!finalDuration || finalDuration === 0) {
     throw new Error('No video duration available');
   }
   
+  const logDate = isValidPayloadDate(viewedDate) ? viewedDate : new Date().toISOString().split('T')[0];
   return {
     id: Date.now().toString(),
-    date: new Date().toISOString().split('T')[0],
-    description: buildDescription(videoData.title, channel),
-    url: videoUrl,
-    type: 'watching',
     timeSeconds: finalDuration,
-    idempotencyKey: crypto.randomUUID()
+    description: buildDescription(videoData.title, channel),
+    type: 'watching',
+    date: logDate,
+    today: logDate,
+    idempotencyKey: crypto.randomUUID(),
+    externalVideoUrl: videoUrl
   };
 }
 
-async function logVideo(payload, token) {
-  const response = await fetch('https://app.dreaming.com/.netlify/functions/externalTime?language=es', {
+async function logVideo(payload, token, language = 'es') {
+  const response = await fetch(`https://app.dreaming.com/.netlify/functions/externalTime?language=${language}`, {
     method: 'POST',
     headers: {
       'accept': '*/*',
@@ -79,21 +97,23 @@ async function logVideo(payload, token) {
   return response;
 }
 
-async function logVideoFallback(payload, token, videoData, sendResponse) {
-  await logVideo(payload, token);
+async function logVideoFallback(payload, token, videoData, sendResponse, language) {
+  await logVideo(payload, token, language);
   sendResponse({ success: true, videoData, payload });
 }
 
 async function handleVideoInspectAndLog(msg, sendResponse) {
-  chrome.storage.local.get('ds_token', async data => {
+  chrome.storage.local.get(['ds_token', 'ds_language'], async data => {
     const token = data.ds_token;
+    const language = data.ds_language || 'es';
+    
     if (!token) {
       return sendResponse({ success: false, error: 'No token' });
     }
 
     try {
       const videoData = await inspectVideo(msg.videoUrl, token);
-      const payload = createPayload(videoData, msg.videoUrl, msg.channel);
+      const payload = createPayload(videoData, msg.videoUrl, msg.channel, msg.viewedDate);
       
       // Instead of logging from background, send payload to DreamingSpanish page to log from their context
       const tabs = await chrome.tabs.query({ url: 'https://app.dreaming.com/*' });
@@ -102,22 +122,23 @@ async function handleVideoInspectAndLog(msg, sendResponse) {
         try {
           const response = await chrome.tabs.sendMessage(tabs[0].id, {
             type: 'logTimeFromPage',
-            payload: payload
+            payload: payload,
+            language: language
           });
           
           if (response?.success) {
             sendResponse({ success: true, videoData, payload });
           } else {
             // Fallback: log from background if page context fails
-            await logVideoFallback(payload, token, videoData, sendResponse);
+            await logVideoFallback(payload, token, videoData, sendResponse, language);
           }
         } catch {
           // Fallback: log from background if page context fails
-          await logVideoFallback(payload, token, videoData, sendResponse);
+          await logVideoFallback(payload, token, videoData, sendResponse, language);
         }
       } else {
         // No DS tab open, log from background
-        await logVideoFallback(payload, token, videoData, sendResponse);
+        await logVideoFallback(payload, token, videoData, sendResponse, language);
       }
     } catch (error) {
       sendResponse({ success: false, error: error.message });
